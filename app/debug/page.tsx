@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { supabase } from "@/lib/supabase"
@@ -11,6 +11,13 @@ export default function DebugPage() {
   const [testing, setTesting] = useState(false)
   const [results, setResults] = useState<any[]>([])
   const { toast } = useToast()
+  
+  useEffect(() => {
+  const domain = window.location.hostname;
+  console.log("Domain is", domain);
+  addResult("Current Domain", domain, "info");
+}, []);
+
 
   const addResult = (test: string, result: any, status: "success" | "error" | "info" = "info") => {
     setResults((prev) => [...prev, { test, result, status, timestamp: new Date().toISOString() }])
@@ -29,11 +36,7 @@ export default function DebugPage() {
         supabase.supabaseKey ? "success" : "error",
       )
 
-      // Test 2: Current domain info
-      const currentDomain = window.location.origin
-      addResult("Current Domain", currentDomain, "info")
-      addResult("Current URL", window.location.href, "info")
-
+      
       // Test 3: Expected redirect URLs
       const expectedRedirectUrls = [
         `${currentDomain}/auth/callback`,
