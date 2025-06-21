@@ -1,9 +1,35 @@
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Check, Crown } from "lucide-react"
-import Link from "next/link"
+"use client";
+
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Check, Crown } from "lucide-react";
+import Link from "next/link";
 
 export default function PremiumPage() {
+  const [loading, setLoading] = useState(false);
+
+  const handleCheckout = async () => {
+    setLoading(true);
+    const res = await fetch("/api/create-checkout-session", {
+      method: "POST",
+    });
+
+    const data = await res.json();
+    if (data.url) {
+      window.location.href = data.url;
+    } else {
+      setLoading(false);
+      alert("Something went wrong!");
+    }
+  };
+
   const features = [
     "Remove watermark from all exports",
     "Access to all premium transitions (Zoom, Spin, etc.)",
@@ -13,7 +39,7 @@ export default function PremiumPage() {
     "Priority customer support",
     "Advanced text styling options",
     "Custom branding options",
-  ]
+  ];
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted">
@@ -99,10 +125,17 @@ export default function PremiumPage() {
                   </li>
                 ))}
               </ul>
-              <Button className="w-full" size="lg">
-                Upgrade to Premium
+              <Button
+                className="w-full"
+                size="lg"
+                onClick={handleCheckout}
+                disabled={loading}
+              >
+                {loading ? "Redirecting..." : "Upgrade to Premium"}
               </Button>
-              <p className="text-xs text-center text-muted-foreground">Cancel anytime. 7-day free trial included.</p>
+              <p className="text-xs text-center text-muted-foreground">
+                Cancel anytime. 7-day free trial included.
+              </p>
             </CardContent>
           </Card>
         </div>
@@ -141,5 +174,6 @@ export default function PremiumPage() {
         </div>
       </main>
     </div>
-  )
+  );
 }
+
