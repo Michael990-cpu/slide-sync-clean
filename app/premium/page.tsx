@@ -15,21 +15,6 @@ import Link from "next/link";
 export default function PremiumPage() {
   const [loading, setLoading] = useState(false);
 
-  const handleCheckout = async () => {
-    setLoading(true);
-    const res = await fetch("/api/create-checkout-session", {
-      method: "POST",
-    });
-
-    const data = await res.json();
-    if (data.url) {
-      window.location.href = data.url;
-    } else {
-      setLoading(false);
-      alert("Something went wrong!");
-    }
-  };
-
   const features = [
     "Remove watermark from all exports",
     "Access to all premium transitions (Zoom, Spin, etc.)",
@@ -40,6 +25,27 @@ export default function PremiumPage() {
     "Advanced text styling options",
     "Custom branding options",
   ];
+
+  const handleCheckout = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+      });
+      const data = await res.json();
+      if (data?.url) {
+        window.location.href = data.url;
+      } else {
+        console.error("Stripe checkout session failed", data);
+        alert("Something went wrong!");
+      }
+    } catch (error) {
+      console.error("Checkout error", error);
+      alert("Something went wrong!");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted">
@@ -125,12 +131,7 @@ export default function PremiumPage() {
                   </li>
                 ))}
               </ul>
-              <Button
-                className="w-full"
-                size="lg"
-                onClick={handleCheckout}
-                disabled={loading}
-              >
+              <Button className="w-full" size="lg" onClick={handleCheckout}>
                 {loading ? "Redirecting..." : "Upgrade to Premium"}
               </Button>
               <p className="text-xs text-center text-muted-foreground">
@@ -147,8 +148,7 @@ export default function PremiumPage() {
               <CardContent className="p-6">
                 <h3 className="font-medium mb-2">Can I cancel my subscription anytime?</h3>
                 <p className="text-muted-foreground text-sm">
-                  Yes, you can cancel your subscription at any time. You'll continue to have access to premium features
-                  until the end of your billing period.
+                  Yes, you can cancel your subscription at any time. You'll continue to have access to premium features until the end of your billing period.
                 </p>
               </CardContent>
             </Card>
@@ -156,8 +156,7 @@ export default function PremiumPage() {
               <CardContent className="p-6">
                 <h3 className="font-medium mb-2">What happens to my slideshows if I downgrade?</h3>
                 <p className="text-muted-foreground text-sm">
-                  Your existing slideshows will remain accessible, but new exports will include watermarks and be
-                  limited to 720p resolution.
+                  Your existing slideshows will remain accessible, but new exports will include watermarks and be limited to 720p resolution.
                 </p>
               </CardContent>
             </Card>
@@ -165,8 +164,7 @@ export default function PremiumPage() {
               <CardContent className="p-6">
                 <h3 className="font-medium mb-2">Do you offer refunds?</h3>
                 <p className="text-muted-foreground text-sm">
-                  We offer a 7-day free trial and a 30-day money-back guarantee if you're not satisfied with our premium
-                  features.
+                  We offer a 7-day free trial and a 30-day money-back guarantee if you're not satisfied with our premium features.
                 </p>
               </CardContent>
             </Card>
@@ -176,4 +174,5 @@ export default function PremiumPage() {
     </div>
   );
 }
+
 
